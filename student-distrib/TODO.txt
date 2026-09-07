@@ -1,0 +1,3 @@
+conversely, when an entry into the kernel happens, for example, through a
+system call, exception, or interrupt, you should set DS to point to the KERNEL DS segment
+

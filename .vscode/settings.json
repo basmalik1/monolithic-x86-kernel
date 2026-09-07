@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.txt": "plaintext",
+        "i8259.h": "c",
+        "lib.h": "c",
+        "types.h": "c",
+        "keyboard.h": "c",
+        "x86_desc.h": "c",
+        "fs.h": "c",
+        "debug.h": "c",
+        "rtc.h": "c",
+        "syscall_handler.h": "c",
+        "syscall.h": "c"
+    }
+}

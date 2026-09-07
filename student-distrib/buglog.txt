@@ -1,0 +1,125 @@
+Checkpoint 1:
+  Bug:
+    The Interrupts were not being called as expected.
+  Resolution:
+    The macro for exception IDTs were using the wrong values for the reserved bits. 
+    Updating the macro fixed the issue.
+
+  Bug:
+    The order of the registers in the exception handlers was incorrect:
+  Resolution:
+    Moving error code to between the registers and the saved return value
+  
+  Bug:
+    Code was failing the IDT Test, causing an exception 
+    (that was not handled as it used a non-standard exception) 
+  Resolution:
+    Code was checking if the IDT was empty for entries 0-9. 
+    Entry 1 is reserved, so it was not being set.
+    Changing the test to ignore this entry solved the issue.
+
+  Bug:
+    RTC was not sending interrupts, and the keyboard caused a #GP exception
+  Resolution:
+    The wrong bit was IRQ was being unmasked in init_pic,
+     causing the keyboard to be unmasked and the slave to be masked. 
+     Changing the mask from xFD to xFB correctly unmasks the slave.
+
+  Bug:
+    For-loop decleration causing make errors ("loop initial decleration 
+    used outside c99 mode")
+  Resolution:
+    Had to declare looping variable outside of for-loop
+
+  Bug:
+    Keyboard input showing up but fails in 3 ways: 1)Wrong char showing
+    2)sometimes more than 1 char being shown for a single keystroke
+    3)some keys that should be usable are causing a general_protection
+    interrupt
+  Resolution:
+    1)Did not map the letter "e" causing offsets to be wonky
+    2)Bounds checking within if/else if statements for scancode check
+    3)Because of the wonky offsets from 1), invalid scancodes tranlsation
+    led to unwanted behaviors hence general protection fault via invalid
+    memory address
+
+  Bug:
+    Attempting to start paging crashed the kernel, returning to the bootloader.
+  Resolution:
+    1. VIDEO_MEM_INDEX was already set to the index in the table, no need for bitshift
+    2. video mem address needed to be bitshift 12 before being put in table
+    3. Mixed uint32_t and uint8_t in the types was causing the 4mb directory element
+       to be 5 bytes long, breaking the entire table.
+
+Checkpoint 2:
+  Bug:
+    directory_read was returning multiple file names
+  Resolution:
+    Removed the loop, and used the file_index like file_read Did
+
+  Bug:
+    file_read was returning the wrong number of bytes read
+  Resolution:
+    Adjusted code to reset the number of bytes each read, as it was being treated as static,
+    as well as returning only number of bytes read, not number of blocks * 4096
+
+  Bug:
+    file_read with non-full block_offset still reads from start of block_offset
+  Resolution:
+    use the index's modulo with 4096 to set the read start position
+
+  Bug:
+    NULL pointers caused numerous page_faults
+  Resolution:
+    Added buffer pointer checks to all functions
+
+  Bug:
+    (*(uint8_t *)(buf) + i was throwing an error in that it was not grabbing correct value from buffer.
+    It would return the index instead of the actual value desired.
+  Resoltuion:
+    The i needs to be inside the parentheses (*(uint8_t *)(buf + i) for value.
+
+Checkpoint 3:
+  Bug:
+    Checking for rtc file descriptor incorrectly (checking for fd == 0)
+  Resolution:
+    Jackson fixed by checking to see if the file_table_ptr was rtc's
+
+  Bug:
+    Resetting the file_pos was being reset by changing the fd.flag 
+  Resolution:
+    Jackson fixed by resetting using the stored frequency in flag and dividing 1024 by it,
+    resetting the file_pos instead of trying to use flags as a status flag
+
+  Bug:
+    rtc_read was blocking by waiting on a status flag
+  Resoltuion:
+    Jackson fixed by blocking using the file_pos instead
+
+  Bug:
+    rtc_write was not validating desired frequency correctly
+  Resoltuion:
+    Jackson fixed by doing the correct logical operations
+
+Checkpoint 4:
+  Bug:
+    Was fixing tab not displaying an indent/space for keyboard handler. Encounterd 1) Page Fault
+    2)Cursor going ghost
+  Resoltuion:
+    1) Needed to use <"> instead of <'> and 2) need to update cursor after puts()
+
+Checkpoint 5:
+  Bug: 
+    Stack overflow during context switches
+  Resolution: 
+    Fixed the way we set tss.esp0
+
+  Bug:
+    Fish was not properly displaying after calling cat/counter
+  Resolution: 
+    Fixed the way that the terminal handled /n characters to ensure that the attribute values weren't zeroed out.
+  
+  Bug: 
+    Switching between terminals allowed writing more than the 128 limit.
+  Resolution: 
+    Fixed the terminal limits to properly work with all three terminals
